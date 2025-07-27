@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.bootcamp.demo.demo_helloworld.ShoppingMall.Cinema;
 import com.bootcamp.demo.demo_helloworld.ShoppingMall.Cinema.Film;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 

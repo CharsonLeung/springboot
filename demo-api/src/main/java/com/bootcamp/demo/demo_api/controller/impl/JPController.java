@@ -9,6 +9,7 @@ import com.bootcamp.demo.demo_api.entity.PostEntity;
 import com.bootcamp.demo.demo_api.entity.UserEntity;
 import com.bootcamp.demo.demo_api.model.dto.UserDTO;
 import com.bootcamp.demo.demo_api.services.JPService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @RestController
 public class JPController implements JPOperation {
@@ -41,7 +42,7 @@ public class JPController implements JPOperation {
   }
 
   @Override
-  public List<PostEntity> getPostsByUserId(Long userId) {
+  public List<PostEntity> getPostsByUserId(Long userId) throws JsonProcessingException {
     return this.jpService.getPostsByUserId(userId);
   }
 }

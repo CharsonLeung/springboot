@@ -33,4 +33,5 @@ public class PostEntity {
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false) // FK column name
   private UserEntity userEntity;
+
 }

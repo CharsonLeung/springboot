@@ -1,5 +1,6 @@
 package com.bootcamp.demo.demo_api.services.impl;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,6 +15,7 @@ import com.bootcamp.demo.demo_api.entity.PostEntity;
 import com.bootcamp.demo.demo_api.entity.UserEntity;
 import com.bootcamp.demo.demo_api.exception.BusniessException;
 import com.bootcamp.demo.demo_api.exception.SysError;
+import com.bootcamp.demo.demo_api.lib.RedisManager;
 import com.bootcamp.demo.demo_api.lib.Scheme;
 import com.bootcamp.demo.demo_api.mapper.EntityMapper;
 import com.bootcamp.demo.demo_api.model.dto.CommentsDTO;
@@ -23,9 +25,11 @@ import com.bootcamp.demo.demo_api.repository.CommentsRepository;
 import com.bootcamp.demo.demo_api.repository.PostRepository;
 import com.bootcamp.demo.demo_api.repository.UserRepository;
 import com.bootcamp.demo.demo_api.services.JPService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @Service
 public class JPServiceImpl implements JPService {
+
   // ! @Value has dependency, complete injection befoer server start completed
   @Value("${service-api.jsonplaceholder.host}")
   private String domain;
@@ -57,6 +61,13 @@ public class JPServiceImpl implements JPService {
 
   @Autowired
   private EntityMapper entityMapper;
+
+  // ! After Encapsulation, we starts using RedisManager
+  //@Autowired
+  //private RedisTemplate<String, String> redisTemplate;
+  //}
+  @Autowired
+  private RedisManager redisManager;
 
   @Override
   public List<UserDTO> getUsers() {
@@ -138,12 +149,44 @@ private List<PostDTO> getPosts() {
   PostDTO[] users = this.restTemplate.getForObject(url, PostDTO[].class);
   return Arrays.asList(users);
   }
+
+  // ! read post by user id
+  // Rewrite this method -> become read-through pattern by radis
+  // locatlhost: 6379
 @Override
-public List<PostEntity> getPostsByUserId(Long userId) {
-  UserEntity userEntity = this.userRepository.findById(userId) //
-      .orElseThrow(() -> new RuntimeException("User not found."));
-  return this.postRepository.findByUserEntiity(userEntity);
-}
+public List<PostEntity> getPostsByUserId(Long userId) 
+  throws JsonProcessingException {
+  // ! Step 1:
+  // Find data from Radis, if found, return result
+  //String json = this.redisTemplate.opsForValue().get(String.valueOf(userId));
+  
+  PostEntity[] postEntitiesFromRedis = this.redisManager.read(String.valueOf(userId), PostEntity[].class);
+  System.out.println("postEntitiesFromRedis=" + postEntitiesFromRedis);
+  // ! Step 2:
+  // If radis not found, find data from Database
+  List<PostEntity> postEntities = null;
+  if (postEntitiesFromRedis == null) {
+    UserEntity userEntity = this.userRepository.findById(userId) //
+        .orElseThrow(() -> new RuntimeException("User not found."));
+    System.out.println("userEntity=" + userEntity);
+        postEntities = this.postRepository.findByUserEntiity(userEntity);  
+    // ! Step 3:
+    // Write database result into Radis
+    // Convert postEntities to String json
+    //String convertedJson = 
+    //    new ObjectMapper().writeValueAsString(postEntities);
+    //this.redisTemplate.opsForValue().set(String.valueOf(userId), 
+    //  convertedJson, Duration.ofMinutes(15L));
+    this.redisManager.write(String.valueOf(userId), postEntities, Duration.ofMinutes(1L));
+     // ! Step 4:
+  // Return ths result.
+    return postEntities;
+    }  
+    // radis found
+    // Convert JSON to List<PostEntity>
+    // PostEntity[] postEntityArray = new ObjectMapper().readValue(json, PostEntity[].class);
+    return Arrays.asList(postEntitiesFromRedis);
+  }
 
 @Override
 public List<UserEntity> findAllUsers() {

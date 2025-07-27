@@ -2,7 +2,10 @@ package com.bootcamp.demo.demo_api.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.web.client.RestTemplate;
+import com.bootcamp.demo.demo_api.lib.RedisManager;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 // ! Spring manager help calling all the methods inside this class.
 // ! in orderto create athe beans.
@@ -18,6 +21,14 @@ public class AppConfig {
   RestTemplate restTemplate() {
     return new RestTemplate();
   }
+  @Bean(name = "govRestTemplate")
+  RestTemplate restTemplateForCallGov() { // talaymade for Government
+    return new RestTemplate(); // timeout 2 seconds
+  }
+  @Bean(name = "citiRestTemplate")
+  RestTemplate restTemplateForCallCiti() { // talaymade for Citi, no affecting other callers
+    return new RestTemplate(); // timeout 10 seconds
+  }
 
   @Bean(name = "tutor")
   String tutor() {
@@ -27,6 +38,28 @@ public class AppConfig {
   @Bean(name = "student")
   String student() {
     return new String("Jacky");
+  }
+
+// Redis is similar to HashMap<String, String>
+  //@Bean
+  //RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
+  //  RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
+  //  redisTemplate.setConnectionFactory(factory);
+  //  redisTemplate.setKeySerializer(RedisSerializer.string());
+  //  redisTemplate.setValueSerializer(RedisSerializer.json());
+  //  redisTemplate.afterPropertiesSet();
+  //  return redisTemplate;
+  // }
+  // ! String will check if factory object exists, if no, server start fail.
+  @Bean
+  RedisManager redisManager(RedisConnectionFactory factory,
+    ObjectMapper objectMapper) {
+      return new RedisManager(factory, objectMapper);
+    }
+  
+  @Bean
+  ObjectMapper objectMapper() {
+    return new ObjectMapper();
   }
   
 }

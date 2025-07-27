@@ -5,6 +5,7 @@ import com.bootcamp.demo.demo_api.entity.CommentsEntity;
 import com.bootcamp.demo.demo_api.entity.PostEntity;
 import com.bootcamp.demo.demo_api.entity.UserEntity;
 import com.bootcamp.demo.demo_api.model.dto.UserDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public interface JPService {
   List<UserDTO> getUsers();
@@ -12,7 +13,7 @@ public interface JPService {
   List<PostEntity> getAndSavePosts();
   List<CommentsEntity> getAndSaveComments();
 
-  List<PostEntity> getPostsByUserId(Long userId);
+  List<PostEntity> getPostsByUserId(Long userId) throws JsonProcessingException;
 
   List<UserEntity> findAllUsers();
 }

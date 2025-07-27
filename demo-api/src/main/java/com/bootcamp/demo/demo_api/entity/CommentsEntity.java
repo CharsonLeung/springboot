@@ -36,4 +36,5 @@ public class CommentsEntity {
   @JoinColumn(name = "post_id", nullable = false) // FK column name
   private PostEntity postEntity;
 
+  // Java world.object -> object
 }
