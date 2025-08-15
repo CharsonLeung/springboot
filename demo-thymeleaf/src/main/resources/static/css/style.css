@@ -1,0 +1,18 @@
+.styled-table {
+  background-color: paleturquoise;
+  margin: 25px auto;
+  border-collapse: collapse;
+  font-size: 20px;
+  min-width: 600px;
+  border: 1px solid #ee10d1;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.styled-table-mouse-over {
+  margin: 25px auto;
+  border-collapse: collapse;
+  font-size: 20px;
+  min-width: 600px;
+  border: 1px solid #ee10d1;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
